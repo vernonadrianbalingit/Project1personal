@@ -38,8 +38,8 @@ public class PlayerController : MonoBehaviour
     
     void FixedUpdate()
     {
-        // actually move the player using physics
-        rb.MovePosition(rb.position + movement * moveSpeed * Time.fixedDeltaTime);
+        // use velocity for smooth movement - no more glitching!
+        rb.velocity = movement * moveSpeed;
     }
     
     // this will be useful later for checking if player is near something they can interact with
