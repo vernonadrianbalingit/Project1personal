@@ -24,6 +24,8 @@ public class PlayerController : MonoBehaviour
         // get input from WASD keys
         movement.x = Input.GetAxisRaw("Horizontal"); // A/D keys
         movement.y = Input.GetAxisRaw("Vertical");   // W/S keys
+
+        if (movement.x !=0) movement.y = 0; //if we going right or left we cant go up or down
         
         // flip sprite based on direction (simple left/right flip)
         if (movement.x > 0)
