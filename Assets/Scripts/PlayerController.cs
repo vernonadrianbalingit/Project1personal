@@ -8,7 +8,15 @@ public class PlayerController : MonoBehaviour
     private Rigidbody2D rb;
     private Vector2 movement;
     private SpriteRenderer spriteRenderer;
-    
+
+    private bool isMoving;
+
+    private Animator animator;
+
+    private void Awake()
+    {
+        animator = GetComponent<Animator>(); 
+    }
     void Start()
     {
         // get the rigidbody component so we can move the player
@@ -25,17 +33,20 @@ public class PlayerController : MonoBehaviour
         movement.x = Input.GetAxisRaw("Horizontal"); // A/D keys
         movement.y = Input.GetAxisRaw("Vertical");   // W/S keys
 
-        if (movement.x !=0) movement.y = 0; //if we going right or left we cant go up or down
+        Debug.Log("This is input.x" + movement.x);
+        Debug.Log("This is input.y" + movement.y);
+
         
-        // flip sprite based on direction (simple left/right flip)
-        if (movement.x > 0)
-        {
-            spriteRenderer.flipX = false; // facing right
-        }
-        else if (movement.x < 0)
-        {
-            spriteRenderer.flipX = true; // facing left
-        }
+
+
+
+        if (movement.x !=0) movement.y = 0; //if we going right or left we cant go up or down
+        animator.SetFloat("moveX", movement.x);
+        animator.SetFloat("moveY", movement.y);
+
+        isMoving = movement.magnitude > .1f;
+        animator.SetBool("isMoving", isMoving);
+
     }
     
     void FixedUpdate()
