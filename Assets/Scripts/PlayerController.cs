@@ -13,6 +13,8 @@ public class PlayerController : MonoBehaviour
 
     private Animator animator;
 
+    public LayerMask solidObjectsLayer;
+
     private void Awake()
     {
         animator = GetComponent<Animator>(); 
@@ -44,8 +46,21 @@ public class PlayerController : MonoBehaviour
         animator.SetFloat("moveX", movement.x);
         animator.SetFloat("moveY", movement.y);
 
-        isMoving = movement.magnitude > .1f;
-        animator.SetBool("isMoving", isMoving);
+        if(movement != Vector2.zero)
+        {
+            var targetPos = transform.position;
+            targetPos.x += movement.x;
+            targetPos.y += movement.y;
+            if (IsWalkable(targetPos))
+            {
+                isMoving = movement.magnitude > .1f;
+                animator.SetBool("isMoving", isMoving);
+            }
+        }
+
+       
+
+        
 
     }
     
@@ -62,6 +77,17 @@ public class PlayerController : MonoBehaviour
         if (other.CompareTag("Interactable"))
         {
             Debug.Log("Player can interact with: " + other.name);
+        }
+    }
+
+    private bool IsWalkable(Vector3 targetPos)
+    {
+        if(Physics2D.OverlapCircle(targetPos, 0.2f, solidObjectsLayer) != null)
+        {
+            return false;
+        } else
+        {
+            return true;
         }
     }
 }
