@@ -6,6 +6,9 @@ public class Coin : MonoBehaviour
     [Header("Score Value")]
     public int scoreValue = 10;  // how many points this coin is worth
     
+    [Header("Audio")]
+    public AudioClip collectSound;  // sound when coin is collected
+    
     [Header("Visual Feedback")]
     public float rotationSpeed = 90f;  // degrees per second
     public float bobSpeed = 2f;
@@ -54,8 +57,11 @@ public class Coin : MonoBehaviour
             gameManager.AddScore(scoreValue);
         }
         
-        // Optional: play sound effect here if you have one
-        // AudioSource.PlayClipAtPoint(collectSound, transform.position);
+        // play collect sound
+        if (collectSound != null)
+        {
+            AudioSource.PlayClipAtPoint(collectSound, transform.position);
+        }
         
         // Destroy the coin
         Destroy(gameObject);

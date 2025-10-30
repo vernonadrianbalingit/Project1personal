@@ -134,6 +134,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   scoreValue: 10
+  collectSound: {fileID: 8300000, guid: 9e7b35facf037487ba99acbf73daf90f, type: 3}
   rotationSpeed: 90
   bobSpeed: 2
   bobAmount: 0.2
