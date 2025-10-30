@@ -9,6 +9,11 @@ public class CopChaser : MonoBehaviour
     public float visionRange = 12f;
     public float loseSightTime = 1.25f;
     public LayerMask solidLayerMask; // assign SolidObjects layer in Inspector
+    
+    [Header("Avoidance / Steering")]
+    public float probeDistance = 0.6f;      // how far ahead to check for walls
+    public float sideProbeOffset = 0.25f;   // left/right probe offset from center
+    public float unstickNudge = 0.5f;       // small sideways nudge when stuck
 
     private Transform player;
     private Rigidbody2D rb;
@@ -58,12 +63,42 @@ public class CopChaser : MonoBehaviour
             if (lostTimer >= loseSightTime) hasLOS = false;
         }
 
-        // Move
+        // Move with simple wall-slide avoidance
         if (hasLOS || seePlayer)
         {
-            Vector2 v = dir.normalized * moveSpeed;
-            rb.velocity = v;
-            if (sprite != null) sprite.flipX = v.x < 0f;
+            Vector2 desired = dir.normalized * moveSpeed;
+
+            // forward probe
+            Vector2 origin = (Vector2)transform.position;
+            RaycastHit2D hitF = Physics2D.Raycast(origin, desired.normalized, probeDistance, solidLayerMask);
+
+            if (hitF.collider != null)
+            {
+                // slide along surface: remove component into the wall normal
+                Vector2 slide = desired - Vector2.Dot(desired, hitF.normal) * hitF.normal;
+                desired = slide;
+
+                // if still tiny, use side probes to pick a bias
+                if (desired.sqrMagnitude < 0.01f)
+                {
+                    Vector2 perp = new Vector2(-dir.y, dir.x).normalized; // left vector relative to target
+                    Vector2 leftOrigin = origin + perp * sideProbeOffset;
+                    Vector2 rightOrigin = origin - perp * sideProbeOffset;
+                    bool leftBlocked = Physics2D.Raycast(leftOrigin, dir.normalized, probeDistance, solidLayerMask);
+                    bool rightBlocked = Physics2D.Raycast(rightOrigin, dir.normalized, probeDistance, solidLayerMask);
+                    desired = rightBlocked && !leftBlocked ? perp * moveSpeed : (!rightBlocked && leftBlocked ? -perp * moveSpeed : perp * moveSpeed);
+                }
+            }
+
+            // unstick: if we're chasing but barely moving, add a tiny perpendicular nudge
+            if (rb.velocity.sqrMagnitude < 0.0004f)
+            {
+                Vector2 perp = new Vector2(-dir.y, dir.x).normalized;
+                desired += perp * unstickNudge;
+            }
+
+            rb.velocity = desired;
+            if (sprite != null) sprite.flipX = rb.velocity.x < 0f;
         }
         else
         {

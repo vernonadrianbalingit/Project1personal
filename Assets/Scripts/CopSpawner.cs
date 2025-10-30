@@ -15,6 +15,7 @@ public class CopSpawner : MonoBehaviour
     public float initialInterval = 6f;
     public float minInterval = 2f;
     public float rampEverySeconds = 20f;    // how often to get harder
+    public int maxCopsCap = 8;              // upper limit as difficulty ramps
     public float minDistanceFromPlayer = 6f;
     public float overlapRadius = 0.35f;     // avoid spawning inside walls
 
@@ -42,6 +43,7 @@ public class CopSpawner : MonoBehaviour
         if (Time.time >= nextRampTime)
         {
             currentInterval = Mathf.Max(minInterval, currentInterval - 0.5f);
+            if (maxCops < maxCopsCap) maxCops += 1; // slowly allow more cops
             nextRampTime = Time.time + rampEverySeconds;
         }
 

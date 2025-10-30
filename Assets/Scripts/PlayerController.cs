@@ -270,6 +270,13 @@ public class PlayerController : MonoBehaviour
 
         enabled = false;
         Debug.Log("Game Over");
+
+        // notify GameManager if present so it can show final score and restart hint
+        var gm = FindObjectOfType<GameManager>();
+        if (gm != null)
+        {
+            gm.OnGameOver();
+        }
     }
 
     private void UpdateLivesUI()
