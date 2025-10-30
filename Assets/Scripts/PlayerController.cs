@@ -14,6 +14,7 @@ public class PlayerController : MonoBehaviour
     private Animator animator;
 
     public LayerMask solidObjectsLayer;
+    public LayerMask interactablesLayer;
 
     private void Awake()
     {
@@ -35,14 +36,28 @@ public class PlayerController : MonoBehaviour
         movement.x = Input.GetAxisRaw("Horizontal"); // A/D keys
         movement.y = Input.GetAxisRaw("Vertical");   // W/S keys
 
-        Debug.Log("This is input.x" + movement.x);
-        Debug.Log("This is input.y" + movement.y);
+       // Debug.Log("This is input.x" + movement.x);
+       // Debug.Log("This is input.y" + movement.y);
 
         
 
 
 
         if (movement.x !=0) movement.y = 0; //if we going right or left we cant go up or down
+
+        isMoving = movement.magnitude > 0.1f; //tell it when we are moving or stopped
+
+        if (!isMoving)
+        {
+            movement.x = 0;
+            movement.y = 0;
+            // Force reset the animator parameters
+            animator.SetFloat("moveX", 0);
+            animator.SetFloat("moveY", 0);
+        }
+
+        Debug.Log("isMoving: " + isMoving + ", movement: " + movement);
+
         animator.SetFloat("moveX", movement.x);
         animator.SetFloat("moveY", movement.y);
 
@@ -82,7 +97,7 @@ public class PlayerController : MonoBehaviour
 
     private bool IsWalkable(Vector3 targetPos)
     {
-        if(Physics2D.OverlapCircle(targetPos, 0.2f, solidObjectsLayer) != null)
+        if(Physics2D.OverlapCircle(targetPos, 0.2f, solidObjectsLayer | interactablesLayer) != null)
         {
             return false;
         } else
