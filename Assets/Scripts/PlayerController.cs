@@ -40,9 +40,16 @@ public class PlayerController : MonoBehaviour
     public int maxLives = 3;
     public float invulnerabilityDuration = 1.5f;
     public float blinkInterval = 0.1f;
+    
+    [Header("Boogie Bomb")]
+    public GameObject boogieBombPrefab;     // assign your boogie bomb prefab
+    public int boogieBombs = 2;            // starting bombs
+    public float throwCooldown = 6f;       // cooldown between throws
+    public float throwForce = 8f;          // how hard to throw
 
     private int currentLives;
     private bool isInvulnerable;
+    private float lastThrowTime;
     private void Awake()
     {
         animator = GetComponent<Animator>(); 
@@ -122,6 +129,24 @@ public class PlayerController : MonoBehaviour
 
         // update stamina UI (if assigned)
         if (StaminaBar != null) StaminaBar.value = currentStamina;
+        
+        // handle boogie bomb throw
+        if (Input.GetKeyDown(KeyCode.E))
+        {
+            Debug.Log("E pressed! Bombs: " + boogieBombs + ", Cooldown: " + (Time.time - lastThrowTime) + "/" + throwCooldown);
+            if (boogieBombs > 0 && Time.time - lastThrowTime > throwCooldown)
+            {
+                ThrowBoogieBomb();
+            }
+            else if (boogieBombs <= 0)
+            {
+                Debug.Log("No boogie bombs left!");
+            }
+            else
+            {
+                Debug.Log("Still on cooldown!");
+            }
+        }
 
         if (!isMoving)
         {
@@ -283,4 +308,38 @@ public class PlayerController : MonoBehaviour
 {
     if (livesTextTMP != null) livesTextTMP.text = "Lives: " + currentLives;
 }
+
+    private void ThrowBoogieBomb()
+    {
+        if (boogieBombPrefab == null) return;
+        
+        // create bomb at player position
+        GameObject bomb = Instantiate(boogieBombPrefab, transform.position, Quaternion.identity);
+        
+        // get throw direction (toward mouse or movement direction)
+        Vector2 throwDirection;
+        if (Camera.main != null)
+        {
+            Vector3 mousePos = Camera.main.ScreenToWorldPoint(Input.mousePosition);
+            throwDirection = (mousePos - transform.position).normalized;
+        }
+        else
+        {
+            // fallback to movement direction or right
+            throwDirection = movement.magnitude > 0.1f ? movement.normalized : Vector2.right;
+        }
+        
+        // add velocity to bomb
+        Rigidbody2D bombRb = bomb.GetComponent<Rigidbody2D>();
+        if (bombRb != null)
+        {
+            bombRb.velocity = throwDirection * throwForce;
+        }
+        
+        // consume bomb and set cooldown
+        boogieBombs--;
+        lastThrowTime = Time.time;
+        
+        Debug.Log("Boogie bomb thrown! Remaining: " + boogieBombs);
+    }
 }

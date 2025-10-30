@@ -20,6 +20,11 @@ public class CopChaser : MonoBehaviour
     private SpriteRenderer sprite;
     private float lostTimer;
     private bool hasLOS;
+    
+    [Header("Boogie State")]
+    private bool isBoogied;
+    private float boogieTimer;
+    private Color originalColor;
 
     void Awake()
     {
@@ -39,11 +44,40 @@ public class CopChaser : MonoBehaviour
     {
         var playerGO = GameObject.FindGameObjectWithTag("Player");
         if (playerGO != null) player = playerGO.transform;
+        
+        // store original color for boogie effect
+        if (sprite != null) originalColor = sprite.color;
     }
 
     void Update()
     {
         if (player == null) { rb.velocity = Vector2.zero; return; }
+
+        // handle boogie state - cops dance and ignore player
+        if (isBoogied)
+        {
+            boogieTimer -= Time.deltaTime;
+            if (boogieTimer <= 0f)
+            {
+                // end boogie state
+                isBoogied = false;
+                if (sprite != null) sprite.color = originalColor;
+            }
+            else
+            {
+                // dance effect - small random movement and color flash
+                rb.velocity = new Vector2(
+                    Mathf.Sin(Time.time * 8f) * 0.5f,
+                    Mathf.Cos(Time.time * 6f) * 0.3f
+                );
+                if (sprite != null)
+                {
+                    sprite.color = Color.Lerp(originalColor, Color.magenta, 
+                        Mathf.PingPong(Time.time * 4f, 1f));
+                }
+            }
+            return; // skip normal chase logic while boogied
+        }
 
         // LOS: within range and no wall between
         Vector2 dir = (player.position - transform.position);
@@ -104,6 +138,15 @@ public class CopChaser : MonoBehaviour
         {
             rb.velocity = Vector2.zero; // idle when no LOS
         }
+    }
+
+    // called by boogie bomb to make cop dance
+    public void EnterBoogie(float duration)
+    {
+        isBoogied = true;
+        boogieTimer = duration;
+        hasLOS = false; // stop chasing
+        lostTimer = 0f;
     }
 }
  
