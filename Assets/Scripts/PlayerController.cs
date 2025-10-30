@@ -1,9 +1,11 @@
 using UnityEngine;
-
+using TMPro;
 public class PlayerController : MonoBehaviour
 {
     [Header("Movement Settings")]
     public float moveSpeed = 6f; // how fast the player moves
+
+    public TextMeshProUGUI livesTextTMP; // drag the tmp 
     
     private Rigidbody2D rb;
     private Vector2 movement;
@@ -27,11 +29,20 @@ public class PlayerController : MonoBehaviour
 
     public UnityEngine.UI.Slider StaminaBar;
 
+
     // internal state
     private float currentStamina;
     private bool isDashing;
     private bool isExhausted;
     private float exhaustedTimer;
+
+    [Header("Lives Settings")] // simple chase rules: 3 lives and brief invulnerability after a hit
+    public int maxLives = 3;
+    public float invulnerabilityDuration = 1.5f;
+    public float blinkInterval = 0.1f;
+
+    private int currentLives;
+    private bool isInvulnerable;
     private void Awake()
     {
         animator = GetComponent<Animator>(); 
@@ -41,7 +52,12 @@ public class PlayerController : MonoBehaviour
         // get the rigidbody component so we can move the player
         rb = GetComponent<Rigidbody2D>();
         spriteRenderer = GetComponent<SpriteRenderer>();
-        
+
+        // initialize lives first so UI shows the correct value at spawn
+        maxLives = Mathf.Max(1, maxLives);
+        currentLives = maxLives;
+        UpdateLivesUI();
+
         // freeze rotation so player doesn't spin around
         rb.freezeRotation = true;
 
@@ -53,6 +69,9 @@ public class PlayerController : MonoBehaviour
             StaminaBar.maxValue = staminaMax;
             StaminaBar.value = currentStamina;
         }
+
+        // ensure base speed matches current inspector value on first frame
+        baseMoveSpeed = moveSpeed;
     }
     
     void Update()
@@ -154,6 +173,22 @@ public class PlayerController : MonoBehaviour
         {
             Debug.Log("Player can interact with: " + other.name);
         }
+
+        // lose a life if a cop touches us
+        if (other.CompareTag("Cop"))
+        {
+            TakeHit();
+        }
+    }
+
+    // fallback for non-trigger colliders: if the cop uses a normal Collider2D,
+    // we still take a hit on contact
+    void OnCollisionEnter2D(Collision2D collision)
+    {
+        if (collision.collider != null && collision.collider.CompareTag("Cop"))
+        {
+            TakeHit();
+        }
     }
 
     private bool IsWalkable(Vector3 targetPos)
@@ -166,4 +201,57 @@ public class PlayerController : MonoBehaviour
             return true;
         }
     }
+
+    // apply one hit of damage and start invulnerability window
+    private void TakeHit()
+    {
+        if (isInvulnerable) return;
+
+        currentLives--;
+        Debug.Log("Hit by cop! Lives left: " + currentLives);
+
+        if (currentLives <= 0)
+        {
+            rb.velocity = Vector2.zero;
+            enabled = false; // disable control; you can hook a GameOver UI here
+            Debug.Log("Game Over");
+            return;
+        }
+
+        UpdateLivesUI();
+        isInvulnerable = true;
+        StartCoroutine(InvulnerabilityBlink());
+    }
+
+    // quick blink so it's obvious we can't be hit again right away
+    private System.Collections.IEnumerator InvulnerabilityBlink()
+    {
+        float elapsed = 0f;
+        bool visible = true;
+        while (elapsed < invulnerabilityDuration)
+        {
+            visible = !visible;
+            if (spriteRenderer != null)
+            {
+                var c = spriteRenderer.color;
+                c.a = visible ? 1f : 0.3f;
+                spriteRenderer.color = c;
+            }
+            yield return new WaitForSeconds(blinkInterval);
+            elapsed += blinkInterval;
+        }
+
+        if (spriteRenderer != null)
+        {
+            var c = spriteRenderer.color;
+            c.a = 1f;
+            spriteRenderer.color = c;
+        }
+        isInvulnerable = false;
+    }
+
+    private void UpdateLivesUI()
+{
+    if (livesTextTMP != null) livesTextTMP.text = "Lives: " + currentLives;
+}
 }
