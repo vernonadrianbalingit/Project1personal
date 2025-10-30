@@ -41,6 +41,10 @@ public class PlayerController : MonoBehaviour
     public float invulnerabilityDuration = 1.5f;
     public float blinkInterval = 0.1f;
     
+    [Header("Audio")]
+    public AudioClip hitSound;              // sound when player gets hit by cop
+    public AudioSource audioSource;         // audio source for playing sounds
+    
     [Header("Boogie Bomb")]
     public GameObject boogieBombPrefab;     // assign your boogie bomb prefab
     public int boogieBombs = 2;            // starting bombs
@@ -70,6 +74,16 @@ public class PlayerController : MonoBehaviour
 
         //init stamina
         currentStamina = staminaMax;
+        
+        // setup audio source if not assigned
+        if (audioSource == null)
+        {
+            audioSource = GetComponent<AudioSource>();
+            if (audioSource == null)
+            {
+                audioSource = gameObject.AddComponent<AudioSource>();
+            }
+        }
         if (StaminaBar != null)
         {
             StaminaBar.minValue = 0f;
@@ -182,10 +196,11 @@ public class PlayerController : MonoBehaviour
     void OnTriggerEnter2D(Collider2D other)
     {
         // placeholder for now - we'll add interaction logic later
-        if (other.CompareTag("Interactable"))
-        {
-            Debug.Log("Player can interact with: " + other.name);
-        }
+        // Note: "Interactable" tag needs to be created in Project Settings if you want to use this
+        // if (other.CompareTag("Interactable"))
+        // {
+        //     Debug.Log("Player can interact with: " + other.name);
+        // }
 
         // lose a life if a cop touches us
         if (other.CompareTag("Cop"))
@@ -219,6 +234,12 @@ public class PlayerController : MonoBehaviour
     private void TakeHit()
     {
         if (isInvulnerable) return;
+
+        // play hit sound
+        if (audioSource != null && hitSound != null)
+        {
+            audioSource.PlayOneShot(hitSound);
+        }
 
         currentLives--;
         Debug.Log("Hit by cop! Lives left: " + currentLives);

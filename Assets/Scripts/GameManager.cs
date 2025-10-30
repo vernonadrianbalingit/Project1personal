@@ -47,6 +47,16 @@ public class GameManager : MonoBehaviour
         }
     }
 
+    // Add score when coins are collected
+    public void AddScore(int points)
+    {
+        if (!isGameOver)
+        {
+            score += points;
+            UpdateScoreUI();
+        }
+    }
+
     public void OnGameOver()
     {
         if (isGameOver) return;
