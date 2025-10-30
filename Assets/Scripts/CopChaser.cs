@@ -20,6 +20,14 @@ public class CopChaser : MonoBehaviour
     {
         rb = GetComponent<Rigidbody2D>();
         sprite = GetComponent<SpriteRenderer>();
+        // keep cops from spinning or falling due to collisions/physics
+        if (rb != null)
+        {
+            rb.freezeRotation = true;
+            rb.gravityScale = 0f;
+            rb.collisionDetectionMode = CollisionDetectionMode2D.Continuous;
+            rb.angularVelocity = 0f;
+        }
     }
 
     void Start()
