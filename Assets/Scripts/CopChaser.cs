@@ -5,9 +5,9 @@ using UnityEngine;
 public class CopChaser : MonoBehaviour
 {
     [Header("Chase Settings")]
-    public float moveSpeed = 3.5f;
-    public float visionRange = 12f;
-    public float loseSightTime = 1.25f;
+    public float moveSpeed = 4.5f;  // increased from 3.5f
+    public float visionRange = 16f;  // increased from 12f - can see player from farther
+    public float loseSightTime = 2f; // increased from 1.25f - keeps chasing longer
     public LayerMask solidLayerMask; // assign SolidObjects layer in Inspector
     
     [Header("Avoidance / Steering")]

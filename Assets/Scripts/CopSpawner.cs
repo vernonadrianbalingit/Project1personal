@@ -11,12 +11,12 @@ public class CopSpawner : MonoBehaviour
     public LayerMask solidLayerMask;        // SolidObjects layer to validate space
 
     [Header("Rules")]
-    public int maxCops = 4;
-    public float initialInterval = 6f;
-    public float minInterval = 2f;
-    public float rampEverySeconds = 20f;    // how often to get harder
-    public int maxCopsCap = 8;              // upper limit as difficulty ramps
-    public float minDistanceFromPlayer = 6f;
+    public int maxCops = 5;                 // increased from 4 - start with more cops
+    public float initialInterval = 4f;      // decreased from 6f - spawn faster initially
+    public float minInterval = 1.5f;        // decreased from 2f - minimum spawn interval
+    public float rampEverySeconds = 15f;    // decreased from 20f - ramp difficulty faster
+    public int maxCopsCap = 10;             // increased from 8 - allow more cops at max difficulty
+    public float minDistanceFromPlayer = 5f; // decreased from 6f - can spawn closer to player
     public float overlapRadius = 0.35f;     // avoid spawning inside walls
 
     private float nextSpawnTime;

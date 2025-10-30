@@ -11900,6 +11900,59 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1346319937}
   m_CullTransparentMesh: 1
+--- !u!1 &1449908734
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1449908736}
+  - component: {fileID: 1449908735}
+  m_Layer: 0
+  m_Name: CoinSpawner
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!114 &1449908735
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1449908734}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 808dbdc9d3ee9488d95b4fa02d724245, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  coinPrefab: {fileID: 8798702733183228149, guid: 0a4b5a8d749db408489e3f7facf52ffe, type: 3}
+  spawnPoints: []
+  solidLayerMask:
+    serializedVersion: 2
+    m_Bits: 128
+  spawnInterval: 5
+  maxCoins: 5
+  overlapRadius: 0.3
+  minDistanceFromPlayer: 3
+--- !u!4 &1449908736
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1449908734}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: -3.12578, y: -0.26974136, z: 0.3062078}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &1508500489
 GameObject:
   m_ObjectHideFlags: 0
@@ -12325,3 +12378,4 @@ SceneRoots:
   - {fileID: 1513327383}
   - {fileID: 213697465}
   - {fileID: 8206071359105006278}
+  - {fileID: 1449908736}
