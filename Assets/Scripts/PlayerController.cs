@@ -130,22 +130,10 @@ public class PlayerController : MonoBehaviour
         // update stamina UI (if assigned)
         if (StaminaBar != null) StaminaBar.value = currentStamina;
         
-        // handle boogie bomb throw
-        if (Input.GetKeyDown(KeyCode.E))
+        // handle boogie bomb throw (simple E key)
+        if (Input.GetKeyDown(KeyCode.E) && boogieBombs > 0 && Time.time - lastThrowTime > throwCooldown)
         {
-            Debug.Log("E pressed! Bombs: " + boogieBombs + ", Cooldown: " + (Time.time - lastThrowTime) + "/" + throwCooldown);
-            if (boogieBombs > 0 && Time.time - lastThrowTime > throwCooldown)
-            {
-                ThrowBoogieBomb();
-            }
-            else if (boogieBombs <= 0)
-            {
-                Debug.Log("No boogie bombs left!");
-            }
-            else
-            {
-                Debug.Log("Still on cooldown!");
-            }
+            ThrowBoogieBomb();
         }
 
         if (!isMoving)
@@ -157,7 +145,7 @@ public class PlayerController : MonoBehaviour
             animator.SetFloat("moveY", 0);
         }
 
-        Debug.Log("isMoving: " + isMoving + ", movement: " + movement);
+       // Debug.Log("isMoving: " + isMoving + ", movement: " + movement);
 
         animator.SetFloat("moveX", movement.x);
         animator.SetFloat("moveY", movement.y);
