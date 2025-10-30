@@ -47,7 +47,7 @@ public class PlayerController : MonoBehaviour
     
     [Header("Boogie Bomb")]
     public GameObject boogieBombPrefab;     // assign your boogie bomb prefab
-    public int boogieBombs = 2;            // starting bombs
+    public int boogieBombs = 3;            // starting bombs (increased)
     public float throwCooldown = 6f;       // cooldown between throws
     public float throwForce = 8f;          // how hard to throw
 
@@ -350,5 +350,12 @@ public class PlayerController : MonoBehaviour
         lastThrowTime = Time.time;
         
         Debug.Log("Boogie bomb thrown! Remaining: " + boogieBombs);
+    }
+    
+    // called by boogie bomb pickup to add bombs
+    public void AddBoogieBombs(int amount)
+    {
+        boogieBombs += amount;
+        Debug.Log("Picked up boogie bomb! Total: " + boogieBombs);
     }
 }
