@@ -210,15 +210,15 @@ public class PlayerController : MonoBehaviour
         currentLives--;
         Debug.Log("Hit by cop! Lives left: " + currentLives);
 
+        // update HUD immediately so 1->0 is visible
+        UpdateLivesUI();
+
         if (currentLives <= 0)
         {
-            rb.velocity = Vector2.zero;
-            enabled = false; // disable control; you can hook a GameOver UI here
-            Debug.Log("Game Over");
+            GameOver();
             return;
         }
 
-        UpdateLivesUI();
         isInvulnerable = true;
         StartCoroutine(InvulnerabilityBlink());
     }
@@ -248,6 +248,28 @@ public class PlayerController : MonoBehaviour
             spriteRenderer.color = c;
         }
         isInvulnerable = false;
+    }
+
+    private void GameOver()
+    {
+        // stop blink and restore visuals
+        StopAllCoroutines();
+        isInvulnerable = false;
+        if (spriteRenderer != null)
+        {
+            var c = spriteRenderer.color;
+            c.a = 1f;
+            spriteRenderer.color = c;
+        }
+
+        // freeze and prevent further collisions
+        rb.velocity = Vector2.zero;
+        if (rb != null) rb.simulated = false;
+        var col = GetComponent<Collider2D>();
+        if (col != null) col.enabled = false;
+
+        enabled = false;
+        Debug.Log("Game Over");
     }
 
     private void UpdateLivesUI()
