@@ -16,6 +16,22 @@ public class PlayerController : MonoBehaviour
     public LayerMask solidObjectsLayer;
     public LayerMask interactablesLayer;
 
+    // Stamina/Dash
+    public float baseMoveSpeed = 6f;          // keep your current move speed here
+    public float dashSpeedMultiplier = 1.9f;  // how much faster when dashing
+    public float staminaMax = 2f;             // seconds of full dash
+    public float staminaRegenPerSec = 0.8f;   // regen when not dashing
+    public float dashDrainPerSec = 1.0f;      // drain while holding space
+    public float exhaustedSlowMultiplier = 0.65f; // brief slow if you fully drain
+    public float exhaustedPenaltyTime = 0.75f;
+
+    public UnityEngine.UI.Slider StaminaBar;
+
+    // internal state
+    private float currentStamina;
+    private bool isDashing;
+    private bool isExhausted;
+    private float exhaustedTimer;
     private void Awake()
     {
         animator = GetComponent<Animator>(); 
@@ -28,6 +44,15 @@ public class PlayerController : MonoBehaviour
         
         // freeze rotation so player doesn't spin around
         rb.freezeRotation = true;
+
+        //init stamina
+        currentStamina = staminaMax;
+        if (StaminaBar != null)
+        {
+            StaminaBar.minValue = 0f;
+            StaminaBar.maxValue = staminaMax;
+            StaminaBar.value = currentStamina;
+        }
     }
     
     void Update()
@@ -46,6 +71,38 @@ public class PlayerController : MonoBehaviour
         if (movement.x !=0) movement.y = 0; //if we going right or left we cant go up or down
 
         isMoving = movement.magnitude > 0.1f; //tell it when we are moving or stopped
+
+        // exhausted penalty countdown
+        if (isExhausted)
+        {
+            exhaustedTimer -= Time.deltaTime;
+            if (exhaustedTimer <= 0f) isExhausted = false;
+        }
+
+        // dash input
+        bool dashHeld = Input.GetKey(KeyCode.Space);
+        isDashing = dashHeld && currentStamina > 0.01f && !isExhausted;
+
+        // stamina drain/regen
+        if (isDashing)
+        {
+            currentStamina -= dashDrainPerSec * Time.deltaTime;
+            if (currentStamina <= 0f)
+            {
+                currentStamina = 0f;
+                isDashing = false;
+                isExhausted = true;
+                exhaustedTimer = exhaustedPenaltyTime;
+            }
+        }
+        else
+        {
+            currentStamina += staminaRegenPerSec * Time.deltaTime;
+            if (currentStamina > staminaMax) currentStamina = staminaMax;
+        }
+
+        // update stamina UI (if assigned)
+        if (StaminaBar != null) StaminaBar.value = currentStamina;
 
         if (!isMoving)
         {
@@ -82,7 +139,11 @@ public class PlayerController : MonoBehaviour
     void FixedUpdate()
     {
         // use velocity for smooth movement - no more glitching!
-        rb.velocity = movement * moveSpeed;
+        float speed = baseMoveSpeed;
+        if (isDashing) speed *= dashSpeedMultiplier;
+        if (isExhausted) speed *= exhaustedSlowMultiplier;
+
+        rb.velocity = movement * speed;
     }
     
     // this will be useful later for checking if player is near something they can interact with
