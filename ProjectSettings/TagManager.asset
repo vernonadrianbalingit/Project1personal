@@ -6,6 +6,7 @@ TagManager:
   tags:
   - Cop
   - Coin
+  - BoogieBombPickup
   layers:
   - Default
   - TransparentFX
